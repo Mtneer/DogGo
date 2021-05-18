@@ -68,25 +68,70 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                        SELECT Id, [Name], ImageUrl, NeighborhoodId
-                        FROM Walker
-                        WHERE Id = @id
+                    cmd.CommandText = @"SELECT w.Id AS walkerId, 
+	                                           w.[Name] AS walkerName, 
+                                               w.ImageUrl,
+	                                           w.NeighborhoodId,
+                                               Walks.Id AS walksId,
+	                                           Walks.Date, 
+	                                           Walks.Duration,
+                                               d.Id AS dogId,
+                                               d.OwnerId AS ownerId,
+                                               o.[Name] AS clientName
+	                                      FROM Walker w
+	                                 LEFT JOIN Walks on Walks.WalkerId = w.Id
+                                     LEFT JOIN Dog d on Walks.DogId = d.Id
+                                     LEFT JOIN Owner o on d.OwnerId = o.Id
+	                                     WHERE w.Id = @id;
                     ";
 
                     cmd.Parameters.AddWithValue("@id", id);
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
+                    Walker walker = new Walker();
                     if (reader.Read())
                     {
-                        Walker walker = new Walker
+                        if (walker.Id == 0)
+                        { 
+                            walker.Id = reader.GetInt32(reader.GetOrdinal("walkerId"));
+                            walker.Name = reader.GetString(reader.GetOrdinal("walkerName"));
+                            walker.ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl"));
+                            walker.NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"));
+                            if (reader.IsDBNull(reader.GetOrdinal("walksId")) == false)
+                            {
+                                walker.Walks = new List<Walks>();
+                                Owner owner = new Owner
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("ownerId")),
+                                    Name = reader.GetString(reader.GetOrdinal("clientName"))
+                                };
+                                Walks walk = new Walks
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("walksId")),
+                                    Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                    Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
+                                    Client = owner
+                                };
+                                walker.Walks.Add(walk);
+                            }
+                         
+                        } else
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("Name")),
-                            ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl")),
-                            NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
-                        };
+                            Owner owner = new Owner
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("ownerId")),
+                                Name = reader.GetString(reader.GetOrdinal("clientName"))
+                            };
+                            Walks walk = new Walks
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("walksId")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
+                                Client = owner
+                            };
+                            walker.Walks.Add(walk);
+                        }
 
                         reader.Close();
                         return walker;

@@ -17,4 +17,9 @@ namespace DogGo.Models.ViewModels
         public Owner Owner { get; set; }
         public List<Neighborhood> Neighborhoods { get; set; }
     }
+
+    public class LoginViewModel
+    {
+        public string Email { get; set; }
+    }
 }

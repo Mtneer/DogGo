@@ -39,13 +39,13 @@ namespace DogGo.Repositories
 
                     cmd.Parameters.AddWithValue("@name", dog.Name);
                     cmd.Parameters.AddWithValue("@breed", dog.Breed);
-                    cmd.Parameters.AddWithValue("@notes", dog.Notes);
-                    cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl);
                     cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
+                    cmd.Parameters.AddWithValue("@notes", dog.Notes ?? "");
+                    cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl ?? "");
 
-                    int id = (int)cmd.ExecuteScalar();
+                    int newlyCreatedId = (int)cmd.ExecuteScalar();
 
-                    dog.Id = id;
+                    dog.Id = newlyCreatedId;
                 }
             }
         }
@@ -141,10 +141,17 @@ namespace DogGo.Repositories
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
-                            Notes = reader.GetString(reader.GetOrdinal("Notes")),
-                            ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl")),
                             OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId"))
                         };
+
+                        if (!reader.IsDBNull(reader.GetOrdinal("Notes")))
+                        {
+                            dog.Notes = reader.GetString(reader.GetOrdinal("Notes"));
+                        }
+                        if (!reader.IsDBNull(reader.GetOrdinal("ImageUrl")))
+                        {
+                            dog.ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl"));
+                        }
 
                         reader.Close();
                         return dog;

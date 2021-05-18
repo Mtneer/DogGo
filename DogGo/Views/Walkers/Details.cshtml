@@ -4,37 +4,48 @@
     ViewData["Title"] = "Walker Details";
 }
 
-<h1>Details</h1>
+<h1>Walker Profile</h1>
 
-<div>
-    <h4>Walker</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NeighborhoodId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NeighborhoodId)
-        </dd>
-        <dt class = "col-sm-2">
-            <img class="bg-info" src="@Model.ImageUrl" alt="avatar" />
-        </dt>
-        <dd class = "col-sm-10">
-            <img class="bg-info" src="@Model.ImageUrl" alt="avatar" />
-        </dd>
-    </dl>
+<div class="row">
+    <div class="col-sm-10">
+        <div><img class="bg-info" src="@Model.ImageUrl" alt="avatar" /></div>
+        <h5>@Html.DisplayFor(model => model.Name)</h5>
+        <p>@Html.DisplayFor(model => model.NeighborhoodId)</p>
+    </div>
+    <div class="col-sm-10">
+        <h5>Recent Walks</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        "Date"
+                    </th>
+                    <th>
+                        "Client"
+                    </th>
+                    <th>
+                        "Duration"
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Walks)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Date)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Client)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Duration)
+                        </td>
+                    </tr>
+                }
+             </tbody>
+        </table>
+    </div>
 </div>
 <div>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
